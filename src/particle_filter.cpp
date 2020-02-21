@@ -37,7 +37,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
   normal_distribution<double> dist_x(x, std[0]);
   normal_distribution<double> dist_y(y, std[1]);
   normal_distribution<double> dist_theta(theta, std[2]);
-  weights.resize(num_particles);
+  //weights.resize(num_particles);
   particles.resize(num_particles);
   for(int i = 0; i < num_particles; ++i){
     particles[i].id = i;
@@ -45,7 +45,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
     particles[i].y = dist_y(gen);
     particles[i].theta = dist_theta(gen);
     particles[i].weight = 1.0;
-    weights[i] = 1.0;
+    //weights[i] = 1.0;
   }
 is_initialized = true;
 }
@@ -60,34 +60,28 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
    *  http://www.cplusplus.com/reference/random/default_random_engine/
    */
   default_random_engine gen;
+  normal_distribution<double> dist_x(0, std_pos[0]);
+  normal_distribution<double> dist_y(0, std_pos[1]);
+  normal_distribution<double> dist_theta(0, std_pos[2]);
   
-  double x_f;
+  /*double x_f;
   double y_f;
-  double theta_f;
+  double theta_f;*/
   double dt = delta_t;
   for(int i = 0; i< particles.size(); ++i){
-    double x_0 = particles[i].x;
-    double y_0 = particles[i].y;
-    double theta_0 = particles[i].theta;
     //Check if the yawrate is close to zero
     if(fabs(yaw_rate)<0.001){
-      x_f = x_0 + velocity*dt*cos(theta_0);
-      y_f = y_0 + velocity*dt*sin(theta_0);
-      theta_f = theta_0;
+      particles[i].x += velocity*dt*cos(particles[i].theta);
+      particles[i].y += velocity*dt*sin(particles[i].theta);
     }else{
-      x_f = x_0 + (velocity/yaw_rate)*(sin(theta_0+yaw_rate*dt)-sin(theta_0));
-      y_f = y_0 + (velocity/yaw_rate)*(cos(theta_0)-cos(theta_0+yaw_rate*dt));
-      theta_f = theta_0 + yaw_rate*dt;
+      particles[i].x += (velocity/yaw_rate)*(sin(particles[i].theta+yaw_rate*dt)-sin(particles[i].theta));
+      particles[i].y += (velocity/yaw_rate)*(cos(particles[i].theta)-cos(particles[i].theta+yaw_rate*dt));
+      particles[i].theta += yaw_rate*dt;
     }
-    normal_distribution<double> dist_x(x_f, std_pos[0]);
-  	normal_distribution<double> dist_y(y_f, std_pos[1]);
-  	normal_distribution<double> dist_theta(theta_f, std_pos[2]);
     
-    particles[i].x = dist_x(gen);
-    particles[i].y = dist_y(gen);
-    particles[i].theta = dist_theta(gen);
-    
-    
+    particles[i].x += dist_x(gen);
+    particles[i].y += dist_y(gen);
+    particles[i].theta += dist_theta(gen);  
   }  
 }
 
@@ -131,6 +125,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
    */
   for(unsigned int i = 0; i < particles.size(); ++i){
     
+    //re-set the particle weight
+    particles[i].weight = 1.0;
     // Step 0, find all the landmarks within the sensor range for each particle
     vector<LandmarkObs> predicted_list;
     for(unsigned int j = 0; j < map_landmarks.landmark_list.size(); ++j){
@@ -222,9 +218,9 @@ void ParticleFilter::SetAssociations(Particle& particle,
   // associations: The landmark id that goes along with each listed association
   // sense_x: the associations x mapping already converted to world coordinates
   // sense_y: the associations y mapping already converted to world coordinates
-  particle.associations.clear();
+  /*particle.associations.clear();
   particle.sense_x.clear();
-  particle.sense_y.clear();
+  particle.sense_y.clear();*/
   particle.associations= associations;
   particle.sense_x = sense_x;
   particle.sense_y = sense_y;
