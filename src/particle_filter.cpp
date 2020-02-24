@@ -77,17 +77,6 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
             }
         }
     }
-
-  /*for (unsigned int i = 0; i < observations.size(); ++i){
-    double near_nei = std::numeric_limits<float>::max();// Initialize the nearest distance by assign a large number to near_nei
-    for (unsigned int j = 0; j < predicted.size();++j){
-      double distance = dist(observations[i].x,observations[i].y,predicted[j].x,predicted[j].y);
-      if(near_nei > distance){
-        near_nei = distance;
-        observations[i].id = predicted[j].id;
-      }
-    }  
-  }*/
 }
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
@@ -167,9 +156,6 @@ void ParticleFilter::SetAssociations(Particle& particle,
   // particle: the particle to which assign each listed association, 
   //   and association's (x,y) world coordinates mapping
   // associations: The landmark id that goes along with each listed association
-  // sense_x: the associations x mapping already converted to world coordinates
-  // sense_y: the associations y mapping already converted to world coordinates
- 
   particle.associations= associations;
   particle.sense_x = sense_x;
   particle.sense_y = sense_y;
