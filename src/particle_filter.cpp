@@ -67,8 +67,18 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, 
                                      vector<LandmarkObs>& observations) {
+    for(LandmarkObs& obs: observations){
+        double near_nei = std::numeric_limits<float>::max();// Initialize the nearest distance by assign a large number to near_nei
+        for(LandmarkObs& pred: predicted){
+            double distance = dist(obs.x,obs.y,pred.x,pred.y);
+            if(near_nei > distance){
+                near_nei = distance;
+                obs.id = pred.id;
+            }
+        }
+    }
 
-  for (unsigned int i = 0; i < observations.size(); ++i){
+  /*for (unsigned int i = 0; i < observations.size(); ++i){
     double near_nei = std::numeric_limits<float>::max();// Initialize the nearest distance by assign a large number to near_nei
     for (unsigned int j = 0; j < predicted.size();++j){
       double distance = dist(observations[i].x,observations[i].y,predicted[j].x,predicted[j].y);
@@ -77,7 +87,7 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
         observations[i].id = predicted[j].id;
       }
     }  
-  }
+  }*/
 }
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
